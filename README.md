@@ -17,13 +17,13 @@ Soliton NK Web API for GO Lang
   s := &WebAPI{}
   // Login to Soliton NK
   err := s.Login(url, uid, passwd);
-	// Create Resource
+  // Create Resource
   r, err := s.CreateResorce("test.txt", "test", false)
   // Upload Resource
   r, err  = s.UploadResorce(r.GUID, []byte("test"))
   // Get Resource List
-	list, err := s.GetResorces()
-	for _, re := range list {
+  list, err := s.GetResorces()
+  for _, re := range list {
     ...
   }
   // Delete Resource
@@ -38,23 +38,23 @@ Soliton NK Web API for GO Lang
 ### Search via Websocket
 
 ```go
-	s := &WebAPI{}
+  s := &WebAPI{}
   err := s.Login(url, uid, passwd)
-	defer s.Close()
-	err := s.ConnectWebsocket()
-	rx, err := s.SendWebsocketCommand(`{"type":"parse","data":{"SearchString":"tag=syslog"}}`, false)
-	et := time.Now()
-	st := et.Add(-60 * time.Second)
-	outsub, err := s.StartSearch(st, et, "tag=syslog length")
-	done := false
-	count := 0
-	for !done {
-		done, count, err = s.GetSearchStats(outsub)
-		time.Sleep(1 * time.Second)
-	}
-	if count > 0 {
-		resluts, err := s.GetSearchResult(outsub, 0, count)
-	}
+  defer s.Close()
+  err := s.ConnectWebsocket()
+  rx, err := s.SendWebsocketCommand(`{"type":"parse","data":{"SearchString":"tag=syslog"}}`, false)
+  et := time.Now()
+  st := et.Add(-60 * time.Second)
+  outsub, err := s.StartSearch(st, et, "tag=syslog length")
+  done := false
+  count := 0
+  for !done {
+    done, count, err = s.GetSearchStats(outsub)
+    time.Sleep(1 * time.Second)
+  }
+  if count > 0 {
+    resluts, err := s.GetSearchResult(outsub, 0, count)
+  }
   err := s.Logout()
 
 ```
