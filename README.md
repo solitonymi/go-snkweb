@@ -11,12 +11,18 @@ Soliton NK Web API for GO Lang
 
 ## Usage
 
+### Import
+
+```go
+	import snkweb "github.com/solitonymi/go-snkweb"
+```
+
 ### Login/Access resource/Logout 
 
 ```go
-  s := &WebAPI{}
+  s := &snkweb.WebAPI{}
   // Login to Soliton NK
-  err := s.Login(url, uid, passwd);
+  err := s.Login(url, uid, passwd)
   // Create Resource
   r, err := s.CreateResorce("test.txt", "test", false)
   // Upload Resource
@@ -38,7 +44,7 @@ Soliton NK Web API for GO Lang
 ### Search via Websocket
 
 ```go
-  s := &WebAPI{}
+  s := &snkweb.WebAPI{}
   err := s.Login(url, uid, passwd)
   defer s.Close()
   err := s.ConnectWebsocket()
