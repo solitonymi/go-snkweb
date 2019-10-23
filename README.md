@@ -3,8 +3,6 @@
 Soliton NK Web API for GO Lang
 
 [![Godoc Reference](https://godoc.org/github.com/solitonymi/go-snkweb?status.svg)](http://godoc.org/github.com/solitonymi/go-snkweb)
-[![Build Status](https://travis-ci.org/solitonymi/go-snkweb.svg?branch=master)](https://travis-ci.org/solitonymi/go-snkweb)
-[![Coverage Status](https://coveralls.io/repos/github/solitonymi/go-snkweb/badge.svg?branch=master)](https://coveralls.io/github/solitonymi/go-snkweb?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/solitonymi/go-snkweb)](https://goreportcard.com/report/solitonymi/go-snkweb)
 
 
