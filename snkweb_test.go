@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// TestResorce test resorce access
+// TestResource test resource access
 func TestSnkWeb(t *testing.T) {
 	url := os.Getenv("SNK_URL")
 	if url == "" {
@@ -26,20 +26,20 @@ func TestSnkWeb(t *testing.T) {
 	}
 	defer s.Close()
 	// Create Resource
-	r, err := s.CreateResorce("test.txt", "test", false)
+	r, err := s.CreateResource("test.txt", "test", false)
 	if err != nil {
-		t.Fatalf("CreateResorce error=%#v", err)
+		t.Fatalf("CreateResource error=%#v", err)
 	}
-	r2, err := s.UploadResorce(r.GUID, []byte("test"))
+	r2, err := s.UploadResource("test.txt", r.GUID, []byte("test"))
 	if err != nil {
-		t.Fatalf("UploadResorce error=%#v", err)
+		t.Fatalf("UploadResource error=%#v", err)
 	}
 	if r2.GUID != r.GUID {
-		t.Errorf("Upload Resorce GUID Missmatch %#v != %#v", r.GUID, r2.GUID)
+		t.Errorf("Upload Resource GUID Missmatch %#v != %#v", r.GUID, r2.GUID)
 	}
-	list, err := s.GetResorces()
+	list, err := s.GetResources()
 	if err != nil {
-		t.Fatalf("GetResorces error=%#v", err)
+		t.Fatalf("GetResources error=%#v", err)
 	}
 	for _, re := range list {
 		if re.GUID == r.GUID {
@@ -48,9 +48,9 @@ func TestSnkWeb(t *testing.T) {
 			}
 		}
 	}
-	err = s.DeleteResorce(r.GUID)
+	err = s.DeleteResource(r.GUID)
 	if err != nil {
-		t.Fatalf("DeleteResorce error=%#v", err)
+		t.Fatalf("DeleteResource error=%#v", err)
 	}
 	if err := s.Logout(); err != nil {
 		t.Fatalf("Logout error =%#v", err)

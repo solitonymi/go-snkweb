@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"strings"
 	"time"
@@ -139,8 +140,8 @@ func (s *WebAPI) Logout() error {
 	return nil
 }
 
-// ResorceEnt is entory of resorce on Soliton NK.
-type ResorceEnt struct {
+// ResourceEnt is entory of resource on Soliton NK.
+type ResourceEnt struct {
 	// GUID of Resource
 	GUID string `json:"GUID"`
 	// Resource name
@@ -151,17 +152,17 @@ type ResorceEnt struct {
 	Size int64 `json:"Size"`
 	// Hash of resouce
 	Hash string `json:"Hash"`
-	// VersionNumber of resorce
+	// VersionNumber of resource
 	VersionNumber int `json:"VersionNumber"`
 }
 
-// GetResorces is get resorce list frpm Soliton NK
-func (s *WebAPI) GetResorces() ([]ResorceEnt, error) {
+// GetResources is get resource list frpm Soliton NK
+func (s *WebAPI) GetResources() ([]ResourceEnt, error) {
 	body, err := s.getReq("/api/resources")
 	if err != nil {
 		return nil, err
 	}
-	r := []ResorceEnt{}
+	r := []ResourceEnt{}
 	err = json.Unmarshal(body, &r)
 	if err != nil {
 		return nil, err
@@ -169,8 +170,8 @@ func (s *WebAPI) GetResorces() ([]ResorceEnt, error) {
 	return r, nil
 }
 
-// CreateResorce is get resorce list frpm Soliton NK
-func (s *WebAPI) CreateResorce(name, descr string, global bool) (*ResorceEnt, error) {
+// CreateResource is get resource list frpm Soliton NK
+func (s *WebAPI) CreateResource(name, descr string, global bool) (*ResourceEnt, error) {
 	if s.client == nil {
 		return nil, ErrNoClient
 	}
@@ -202,7 +203,7 @@ func (s *WebAPI) CreateResorce(name, descr string, global bool) (*ResorceEnt, er
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Login HTTP Status Code = %v", resp.StatusCode)
 	}
-	r := ResorceEnt{}
+	r := ResourceEnt{}
 	err = json.Unmarshal(body, &r)
 	if err != nil {
 		return nil, err
@@ -210,24 +211,38 @@ func (s *WebAPI) CreateResorce(name, descr string, global bool) (*ResorceEnt, er
 	return &r, nil
 }
 
-// DownloadResorce is Download resorce from Soliton NK.
-func (s *WebAPI) DownloadResorce(guid string) ([]byte, error) {
+// DownloadResource is Download resource from Soliton NK.
+func (s *WebAPI) DownloadResource(guid string) ([]byte, error) {
 	return s.getReq("/api/resources/" + guid + "/raw")
 }
 
-// UploadResorce is Upload resorce date to Soliton NK.
-func (s *WebAPI) UploadResorce(guid string, data []byte) (*ResorceEnt, error) {
+// UploadResource is Upload resource date to Soliton NK.
+func (s *WebAPI) UploadResource(name, guid string, data []byte) (*ResourceEnt, error) {
 	if s.client == nil {
 		return nil, ErrNoClient
 	}
+	// A multipart PUT request to /api/resources/{guid}/raw,
+	// The request only needs one part, named file, containing the data which should be stored in the resource.
+	reqBody := &bytes.Buffer{}
+
+	// データのmultipartエンコーディングを管理するmultipart.Writerを生成する。
+	mw := multipart.NewWriter(reqBody)
+
+	// ファイルに使うパートを生成する。
+	// ヘッダ以外はデータは書き込まれない。
+	fw, err := mw.CreateFormFile("file", name)
+	contentType := mw.FormDataContentType()
+	fw.Write(data)
+	mw.Close()
 	req, err := http.NewRequest(
 		"PUT",
-		s.url+"/api/resources/"+guid+"/raw", bytes.NewBuffer(data),
+		s.url+"/api/resources/"+guid+"/raw", reqBody,
 	)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Authorization", "Bearer "+s.jwt)
+	req.Header.Set("Content-Type", contentType)
 	resp, err := s.client.Do(req)
 	if err != nil {
 		return nil, err
@@ -236,20 +251,20 @@ func (s *WebAPI) UploadResorce(guid string, data []byte) (*ResorceEnt, error) {
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("HTTP Status Code = %v", resp.StatusCode)
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	resBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
-	r := ResorceEnt{}
-	err = json.Unmarshal(body, &r)
+	r := ResourceEnt{}
+	err = json.Unmarshal(resBody, &r)
 	if err != nil {
 		return nil, err
 	}
 	return &r, nil
 }
 
-// DeleteResorce  delete resorce from Soliton NK.
-func (s *WebAPI) DeleteResorce(guid string) error {
+// DeleteResource  delete resource from Soliton NK.
+func (s *WebAPI) DeleteResource(guid string) error {
 	if s.client == nil {
 		return ErrNoClient
 	}
